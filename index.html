@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEFR 독일어 레벨 테스트</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #e3000f; /* 독일 국기 빨간색 포인트 */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #b3000c;
+        }
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        .options label {
+            display: block;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .options label:hover {
+            background: #d6d8db;
+        }
+        .options input[type="radio"] {
+            margin-right: 10px;
+        }
+        .submit-btn {
+            margin-top: 20px;
+            width: 100%;
+            background-color: #ffce00; /* 독일 국기 노란색 포인트 */
+            color: #000;
+            font-weight: bold;
+        }
+        .submit-btn:hover {
+            background-color: #d4ab00;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>독일어 레벨 테스트</h1>
+        <p>응시할 레벨을 선택해 주세요.</p>
+    </div>
+
+    <div class="level-selector">
+        <button onclick="startQuiz('0-A1')">0-A1 (기초)</button>
+        <button onclick="startQuiz('A1-A2')">A1-A2 (초급)</button>
+        <button onclick="startQuiz('A2-B1')">A2-B1 (중급)</button>
+        <button onclick="startQuiz('B1-B2')">B1-B2 (중고급)</button>
+    </div>
+
+    <div id="quiz-section" class="quiz-container">
+        <h2 id="quiz-title"></h2>
+        <div id="quiz-content"></div>
+        <button class="submit-btn" onclick="submitQuiz()">제출 및 채점하기</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 독일어 문제 데이터 (각 레벨별 5문제 예시, 추가하여 확장 가능)
+        const quizData = {
+            '0-A1': [
+                { q: "1. Hallo! Wie ___ es dir?", options: ["gehst", "geht", "gehen", "gehe"], ans: 1 },
+                { q: "2. Ich ___ aus Südkorea.", options: ["kommst", "kommt", "komme", "kommen"], ans: 2 },
+                { q: "3. Das ist ___ Apfel.", options: ["eine", "einen", "ein", "einem"], ans: 2 },
+                { q: "4. Sie ___ eine Studentin.", options: ["sind", "ist", "bist", "bin"], ans: 1 },
+                { q: "5. Meine Lieblingsfarbe ___ Blau.", options: ["ist", "sind", "bin", "seid"], ans: 0 }
+            ],
+            'A1-A2': [
+                { q: "1. Ich ___ jeden Tag um 7 Uhr.", options: ["frühstückt", "frühstücken", "frühstücke", "gefrühstückt"], ans: 2 },
+                { q: "2. ___ du gern Tennis?", options: ["Spielt", "Spielen", "Spiele", "Spielst"], ans: 3 },
+                { q: "3. Er ist gestern nicht zur Schule ___.", options: ["ging", "gegangen", "gehen", "geht"], ans: 1 },
+                { q: "4. Es ___ viele Leute im Park.", options: ["geben", "gibt", "gab", "gebt"], ans: 1 },
+                { q: "5. Können Sie mir bitte ___?", options: ["hilft", "geholfen", "helfen", "helfe"], ans: 2 }
+            ],
+            'A2-B1': [
+                { q: "1. Ich habe diese Stadt noch nie ___.", options: ["besuchen", "besuchtet", "besuche", "besucht"], ans: 3 },
+                { q: "2. Dieses Buch ist ___ als das andere.", options: ["interessanter", "am interessantesten", "interessant", "so interessant"], ans: 0 },
+                { q: "3. Wenn es morgen regnet, ___ wir zu Hause.", options: ["blieben", "bleiben", "geblieben", "bleibt"], ans: 1 },
+                { q: "4. Ich habe ferngesehen, als das Telefon ___.", options: ["geklingelt", "klingelt", "klingelte", "klingeln"], ans: 2 },
+                { q: "5. Du ___ in der Schule eine Uniform tragen. Das ist eine Regel.", options: ["darfst", "kannst", "musst", "willst"], ans: 2 }
+            ],
+            'B1-B2': [
+                { q: "1. Wenn ich viel Geld ___, würde ich um die Welt reisen.", options: ["habe", "hatte", "hätte", "gehabt"], ans: 2 },
+                { q: "2. Das Fenster ___ gestern von den Jungen kaputt gemacht.", options: ["wird", "wurde", "ist", "war"], ans: 1 },
+                { q: "3. Sie fragte mich, wo ich meine Schlüssel ___.", options: ["lasse", "ließ", "gelassen hätte", "verlassen"], ans: 2 },
+                { q: "4. Bis nächstes Jahr ___ ich mein Studium abgeschlossen haben.", options: ["würde", "bin", "werde", "habe"], ans: 2 },
+                { q: "5. Der Mann, ___ Auto gestohlen wurde, war sehr wütend.", options: ["dem", "den", "dessen", "das"], ans: 2 }
+            ]
+        };
+
+        let currentLevel = '';
+
+        function startQuiz(level) {
+            currentLevel = level;
+            const title = document.getElementById('quiz-title');
+            const content = document.getElementById('quiz-content');
+            const quizSection = document.getElementById('quiz-section');
+            const resultDiv = document.getElementById('result');
+
+            title.innerText = `${level} 레벨 테스트`;
+            content.innerHTML = '';
+            resultDiv.style.display = 'none';
+            resultDiv.innerText = '';
+
+            const questions = quizData[level];
+            
+            questions.forEach((qObj, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-block';
+                questionDiv.style.marginBottom = '25px';
+
+                const qTitle = document.createElement('div');
+                qTitle.className = 'question';
+                qTitle.innerText = qObj.q;
+                questionDiv.appendChild(qTitle);
+
+                const optionsList = document.createElement('ul');
+                optionsList.className = 'options';
+
+                qObj.options.forEach((opt, optIndex) => {
+                    const li = document.createElement('li');
+                    const label = document.createElement('label');
+                    
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = `question${index}`;
+                    radio.value = optIndex;
+
+                    label.appendChild(radio);
+                    label.appendChild(document.createTextNode(opt));
+                    li.appendChild(label);
+                    optionsList.appendChild(li);
+                });
+
+                questionDiv.appendChild(optionsList);
+                content.appendChild(questionDiv);
+            });
+
+            quizSection.style.display = 'block';
+        }
+
+        function submitQuiz() {
+            if (!currentLevel) return;
+
+            const questions = quizData[currentLevel];
+            let score = 0;
+            let answeredCount = 0;
+
+            questions.forEach((qObj, index) => {
+                const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                if (selected) {
+                    answeredCount++;
+                    if (parseInt(selected.value) === qObj.ans) {
+                        score++;
+                    }
+                }
+            });
+
+            if (answeredCount < questions.length) {
+                alert("모든 문제에 답해주세요!");
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerText = `결과: ${questions.length}문제 중 ${score}문제 정답입니다!`;
+            
+            if (score === questions.length) {
+                resultDiv.style.color = '#28a745';
+                resultDiv.innerText += " 완벽합니다!";
+            } else if (score >= questions.length / 2) {
+                resultDiv.style.color = '#007bff';
+                resultDiv.innerText += " 잘하셨습니다!";
+            } else {
+                resultDiv.style.color = '#dc3545';
+                resultDiv.innerText += " 복습이 더 필요하겠네요!";
+            }
+        }
+    </script>
+</body>
+</html>
