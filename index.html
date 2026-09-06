@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEFR 독일어 레벨 테스트</title>
+    <title>CEFR 독일어 레벨 테스트 및 해설</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,6 +20,7 @@
         .level-selector {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             gap: 10px;
             margin-bottom: 30px;
         }
@@ -27,7 +28,7 @@
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
-            background-color: #e3000f; /* 독일 국기 빨간색 포인트 */
+            background-color: #e3000f; 
             color: white;
             font-size: 16px;
             cursor: pointer;
@@ -42,6 +43,11 @@
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             display: none;
+        }
+        .question-block {
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 25px;
         }
         .question {
             font-size: 18px;
@@ -72,26 +78,66 @@
         .submit-btn {
             margin-top: 20px;
             width: 100%;
-            background-color: #ffce00; /* 독일 국기 노란색 포인트 */
+            background-color: #ffce00; 
             color: #000;
             font-weight: bold;
+            font-size: 18px;
+            padding: 15px;
         }
         .submit-btn:hover {
             background-color: #d4ab00;
         }
-        #result {
+        #result-summary {
             margin-top: 20px;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             text-align: center;
             display: none;
+            padding: 20px;
+            border-radius: 5px;
         }
+        #review-section {
+            margin-top: 30px;
+            display: none;
+        }
+        .review-block {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ccc;
+        }
+        .review-block.correct {
+            border-left-color: #28a745;
+        }
+        .review-block.incorrect {
+            border-left-color: #dc3545;
+        }
+        .review-q {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .review-ans {
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        .review-exp {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #555;
+            margin-top: 10px;
+        }
+        .text-correct { color: #28a745; font-weight: bold; }
+        .text-incorrect { color: #dc3545; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>독일어 레벨 테스트</h1>
+        <h1>독일어 CEFR 레벨 테스트 (해설 포함)</h1>
         <p>응시할 레벨을 선택해 주세요.</p>
     </div>
 
@@ -105,63 +151,129 @@
     <div id="quiz-section" class="quiz-container">
         <h2 id="quiz-title"></h2>
         <div id="quiz-content"></div>
-        <button class="submit-btn" onclick="submitQuiz()">제출 및 채점하기</button>
-        <div id="result"></div>
+        <button id="submit-button" class="submit-btn" onclick="submitQuiz()">제출 및 결과 보기</button>
+        
+        <div id="result-summary"></div>
+        <div id="review-section"></div>
     </div>
 
     <script>
-        // 독일어 문제 데이터 (각 레벨별 5문제 예시, 추가하여 확장 가능)
         const quizData = {
             '0-A1': [
-                { q: "1. Hallo! Wie ___ es dir?", options: ["gehst", "geht", "gehen", "gehe"], ans: 1 },
-                { q: "2. Ich ___ aus Südkorea.", options: ["kommst", "kommt", "komme", "kommen"], ans: 2 },
-                { q: "3. Das ist ___ Apfel.", options: ["eine", "einen", "ein", "einem"], ans: 2 },
-                { q: "4. Sie ___ eine Studentin.", options: ["sind", "ist", "bist", "bin"], ans: 1 },
-                { q: "5. Meine Lieblingsfarbe ___ Blau.", options: ["ist", "sind", "bin", "seid"], ans: 0 }
+                { q: "1. Hallo! Wie ___ es dir?", options: ["gehst", "geht", "gehen", "gehe"], ans: 1, exp: "'Wie geht es dir?'는 '어떻게 지내?'라는 안부를 묻는 고정 관용 표현입니다." },
+                { q: "2. Ich ___ aus Südkorea.", options: ["kommst", "kommt", "komme", "kommen"], ans: 2, exp: "주어 'Ich(나는)'에 맞는 동사 변화는 -e로 끝나는 komme입니다." },
+                { q: "3. Das ist ___ Apfel.", options: ["eine", "einen", "ein", "einem"], ans: 2, exp: "Apfel(사과)은 남성 명사이므로, '이것은 ~이다'의 주격 단수 부정관사는 ein을 씁니다." },
+                { q: "4. Sie ___ eine Studentin.", options: ["sind", "ist", "bist", "bin"], ans: 1, exp: "주어 'Sie(그녀는)'에 맞는 3인칭 단수 sein 동사는 ist입니다." },
+                { q: "5. Meine Lieblingsfarbe ___ Blau.", options: ["ist", "sind", "bin", "seid"], ans: 0, exp: "주어인 Lieblingsfarbe(가장 좋아하는 색)가 단수명사이므로 동사 ist를 씁니다." },
+                { q: "6. Wie ___ du?", options: ["heißen", "heißt", "heiße", "heiß"], ans: 1, exp: "주어 'du'에 맞는 heißen(이름이 ~이다) 동사의 인칭변화는 heißt입니다." },
+                { q: "7. Ich ___ in Berlin.", options: ["wohnt", "wohnen", "wohne", "wohnst"], ans: 2, exp: "주어 'Ich'에 맞는 동사 변화는 어미가 -e로 끝나는 wohne입니다." },
+                { q: "8. Wir ___ Deutsch.", options: ["lernt", "lernen", "lerne", "lernst"], ans: 1, exp: "'Wir(우리는)'에 맞는 동사 변화는 동사 원형과 같은 lernen입니다." },
+                { q: "9. Ist das ___ Buch?", options: ["dein", "deine", "deinen", "deinem"], ans: 0, exp: "Buch(책)는 중성 명사이므로 소유대명사 1격(주격)은 dein입니다." },
+                { q: "10. Er trinkt ___ Kaffee. Er mag keinen Kaffee.", options: ["nicht", "nein", "kein", "keinen"], ans: 3, exp: "명사(Kaffee)를 부정할 때는 kein을 사용하며, Kaffee는 남성 명사이고 마시다(trinken)의 목적어(4격)이므로 keinen입니다." },
+                { q: "11. Das ___ meine Eltern.", options: ["ist", "sind", "bin", "seid"], ans: 1, exp: "Eltern(부모님)은 복수 명사이므로, 지시대명사 Das 뒤에 복수형 동사 sind를 씁니다." },
+                { q: "12. Woher ___ Sie?", options: ["komme", "kommst", "kommen", "kommt"], ans: 2, exp: "존칭 'Sie(당신)'에 맞는 동사 변화는 원형과 같은 kommen입니다." },
+                { q: "13. Ich ___ 20 Jahre alt.", options: ["habe", "bin", "ist", "werde"], ans: 1, exp: "독일어에서 나이를 말할 때는 영어의 be동사와 같은 sein 동사(Ich bin)를 사용합니다." },
+                { q: "14. Was ___ das?", options: ["sind", "bin", "ist", "seid"], ans: 2, exp: "das(이것)가 단수 주어로 쓰였으므로 3인칭 단수형 동사 ist를 씁니다." },
+                { q: "15. Wir gehen ___ Kino.", options: ["im", "in", "ins", "zu"], ans: 2, exp: "Kino(영화관)는 중성 명사이며, '~로 간다'는 방향성(4격)을 나타내므로 'in das'의 축약형인 ins를 씁니다." },
+                { q: "16. Ich spreche Englisch und ein ___ Deutsch.", options: ["bisschen", "wenig", "klein", "kurz"], ans: 0, exp: "'ein bisschen'은 '조금, 약간'을 뜻하는 하나의 굳어진 표현입니다." },
+                { q: "17. Guten ___, wie kann ich Ihnen helfen?", options: ["Morgen", "Tag", "Abend", "Nacht"], ans: 1, exp: "Tag은 남성 명사이므로 목적격 어미가 붙어 'Guten Tag'이 됩니다. (참고: Nacht는 여성명사라서 Gute Nacht)" },
+                { q: "18. ___ ist die Toilette?", options: ["Wer", "Wie", "Wo", "Was"], ans: 2, exp: "장소를 물을 때는 '어디에'라는 뜻의 의문사 Wo를 사용합니다." },
+                { q: "19. Ich ___ einen Bruder.", options: ["bin", "hast", "habe", "hat"], ans: 2, exp: "주어 'Ich'에 맞는 haben(가지다) 동사의 인칭변화는 habe입니다." },
+                { q: "20. ___ du ein Auto?", options: ["Habe", "Hast", "Hat", "Haben"], ans: 1, exp: "주어 'du'에 맞는 haben 동사의 인칭변화는 hast입니다." }
             ],
             'A1-A2': [
-                { q: "1. Ich ___ jeden Tag um 7 Uhr.", options: ["frühstückt", "frühstücken", "frühstücke", "gefrühstückt"], ans: 2 },
-                { q: "2. ___ du gern Tennis?", options: ["Spielt", "Spielen", "Spiele", "Spielst"], ans: 3 },
-                { q: "3. Er ist gestern nicht zur Schule ___.", options: ["ging", "gegangen", "gehen", "geht"], ans: 1 },
-                { q: "4. Es ___ viele Leute im Park.", options: ["geben", "gibt", "gab", "gebt"], ans: 1 },
-                { q: "5. Können Sie mir bitte ___?", options: ["hilft", "geholfen", "helfen", "helfe"], ans: 2 }
+                { q: "1. Ich ___ jeden Tag um 7 Uhr.", options: ["frühstückt", "frühstücken", "frühstücke", "gefrühstückt"], ans: 2, exp: "주어 'Ich'에 맞는 동사 현재형 어미는 -e이므로 frühstücke가 정답입니다." },
+                { q: "2. ___ du gern Tennis?", options: ["Spielt", "Spielen", "Spiele", "Spielst"], ans: 3, exp: "Tennis spielen(테니스를 치다)에서 주어가 du이므로 동사는 Spielst로 변합니다." },
+                { q: "3. Er ist gestern nicht zur Schule ___.", options: ["ging", "gegangen", "gehen", "geht"], ans: 1, exp: "조동사 ist(sein)와 함께 쓰여 현재완료 시제를 만드는 과거분사 gegangen이 필요합니다." },
+                { q: "4. Es ___ viele Leute im Park.", options: ["geben", "gibt", "gab", "gebt"], ans: 1, exp: "'Es gibt (+ 4격)'는 '~가 있다'라는 뜻의 비인칭 구문입니다." },
+                { q: "5. Können Sie mir bitte ___?", options: ["hilft", "geholfen", "helfen", "helfe"], ans: 2, exp: "조동사(Können)가 앞에 있으므로 문장 끝에는 동사원형(helfen)이 와야 합니다." },
+                { q: "6. Ich lerne Deutsch, ___ ich in Deutschland arbeiten möchte.", options: ["denn", "aber", "weil", "und"], ans: 2, exp: "동사(möchte)가 문장 맨 끝에 위치하는 후치어순을 유도하는 종속접속사는 weil(~때문에)입니다." },
+                { q: "7. Hast du ___ Wochenende Zeit?", options: ["in", "an", "am", "im"], ans: 2, exp: "Wochenende(주말) 앞에는 항상 전치사 am (an dem)을 사용합니다." },
+                { q: "8. Wir ___ gestern im Kino.", options: ["waren", "sind", "haben", "hatten"], ans: 0, exp: "gestern(어제)이라는 과거 시제와 주어 wir에 맞는 sein 동사의 과거형은 waren입니다." },
+                { q: "9. Mein Vater ___ Arzt von Beruf.", options: ["ist", "arbeitet", "macht", "hat"], ans: 0, exp: "직업을 나타낼 때는 관사 없이 sein 동사(ist)를 사용하여 신분을 표현합니다." },
+                { q: "10. Kannst du ___ bitte das Salz geben?", options: ["mich", "mir", "mein", "ich"], ans: 1, exp: "geben(~에게 ~을 주다) 동사는 사람을 나타내는 3격 목적어(mir: 나에게)를 필요로 합니다." },
+                { q: "11. Ich fahre ___ dem Zug nach München.", options: ["mit", "in", "auf", "an"], ans: 0, exp: "교통수단을 타고 갈 때는 전치사 mit(+ 3격)을 사용합니다." },
+                { q: "12. Ich habe gestern ein tolles Buch ___.", options: ["lese", "las", "gelesen", "gelesen haben"], ans: 2, exp: "조동사 habe와 함께 현재완료 시제를 만들기 위해 lesen의 과거분사인 gelesen이 필요합니다." },
+                { q: "13. Um wie viel Uhr ___ der Zug ab?", options: ["fahrt", "fährst", "fährt", "fahren"], ans: 2, exp: "abfahren(출발하다)은 분리동사이며 주어 der Zug(3인칭 단수)에 맞게 모음이 변음된 fährt를 씁니다." },
+                { q: "14. ___ du am Wochenende Fußball gespielt?", options: ["Hast", "Bist", "Haben", "Sind"], ans: 0, exp: "spielen 동사는 목적어를 취하는 타동사이므로 완료형을 만들 때 조동사 haben(Hast)을 사용합니다." },
+                { q: "15. Gefällt ___ meine neue Wohnung?", options: ["dich", "dir", "du", "dein"], ans: 1, exp: "gefallen(~의 마음에 들다) 동사는 3격 목적어(dir: 너에게)를 지배합니다." },
+                { q: "16. Ich freue mich ___ meinen Geburtstag nächste Woche.", options: ["über", "auf", "für", "an"], ans: 1, exp: "미래의 일에 대해 기대할 때는 'sich freuen auf (+ 4격)'을 사용합니다." },
+                { q: "17. Wir müssen jetzt nach Hause ___.", options: ["gegangen", "gehen", "geht", "gehe"], ans: 1, exp: "화법조동사 müssen이 쓰였으므로 본동사는 원형(gehen) 형태로 문장 맨 끝에 위치합니다." },
+                { q: "18. ___ Wetter ist heute sehr schön.", options: ["Der", "Die", "Das", "Den"], ans: 2, exp: "Wetter(날씨)는 중성 명사이므로 정관사 주격 Das를 사용합니다." },
+                { q: "19. Möchtest du noch ___ Stück Kuchen?", options: ["ein", "einen", "eine", "einem"], ans: 0, exp: "Stück(조각)은 중성 명사이고 목적어 자리(4격)이므로 부정관사 ein을 씁니다." },
+                { q: "20. Er trinkt Tee, ___ er mag keinen Kaffee.", options: ["denn", "weil", "dass", "wenn"], ans: 0, exp: "뒤따르는 문장이 정상 어순(주어+동사)이므로, 0자리 접속사인 denn(왜냐하면)이 와야 합니다." }
             ],
             'A2-B1': [
-                { q: "1. Ich habe diese Stadt noch nie ___.", options: ["besuchen", "besuchtet", "besuche", "besucht"], ans: 3 },
-                { q: "2. Dieses Buch ist ___ als das andere.", options: ["interessanter", "am interessantesten", "interessant", "so interessant"], ans: 0 },
-                { q: "3. Wenn es morgen regnet, ___ wir zu Hause.", options: ["blieben", "bleiben", "geblieben", "bleibt"], ans: 1 },
-                { q: "4. Ich habe ferngesehen, als das Telefon ___.", options: ["geklingelt", "klingelt", "klingelte", "klingeln"], ans: 2 },
-                { q: "5. Du ___ in der Schule eine Uniform tragen. Das ist eine Regel.", options: ["darfst", "kannst", "musst", "willst"], ans: 2 }
+                { q: "1. Ich habe diese Stadt noch nie ___.", options: ["besuchen", "besuchtet", "besuche", "besucht"], ans: 3, exp: "현재완료(haben + 과거분사) 시제이므로 besuchen의 비분리 과거분사인 besucht를 씁니다." },
+                { q: "2. Dieses Buch ist ___ als das andere.", options: ["interessanter", "am interessantesten", "interessant", "so interessant"], ans: 0, exp: "als(~보다)가 문장에 있으므로 비교급 형태인 interessanter를 사용해야 합니다." },
+                { q: "3. Wenn es morgen regnet, ___ wir zu Hause.", options: ["blieben", "bleiben", "geblieben", "bleibt"], ans: 1, exp: "Wenn 부문장이 문장 앞에 오면 주절은 동사(bleiben)부터 시작하며 시제는 현재입니다." },
+                { q: "4. Ich habe ferngesehen, als das Telefon ___.", options: ["geklingelt", "klingelt", "klingelte", "klingeln"], ans: 2, exp: "als(~했을 때) 부문장 내에서 과거의 특정 순간을 묘사하므로 단순과거형인 klingelte를 씁니다." },
+                { q: "5. Du ___ in der Schule eine Uniform tragen. Das ist eine Regel.", options: ["darfst", "kannst", "musst", "willst"], ans: 2, exp: "Regel(규칙)로 인한 강제성이나 의무를 나타내므로 müssen 동사(musst)를 사용합니다." },
+                { q: "6. Ich weiß nicht, ___ er heute zur Party kommt.", options: ["wenn", "wann", "dass", "ob"], ans: 3, exp: "'~인지 아닌지(whether)' 불확실성을 나타내는 명사절을 이끄는 접속사는 ob입니다." },
+                { q: "7. Das ist der Mann, ___ ich gestern geholfen habe.", options: ["den", "der", "dem", "dessen"], ans: 2, exp: "관계대명사절 내의 동사 helfen이 3격을 지배하므로 선행사(der Mann)의 3격 관계대명사인 dem이 옵니다." },
+                { q: "8. Ich interessiere mich sehr ___ Kunst.", options: ["über", "für", "an", "auf"], ans: 1, exp: "'sich interessieren für (+ 4격)'은 '~에 흥미가 있다'라는 전치사 수반 숙어입니다." },
+                { q: "9. Obwohl er krank war, ___ er zur Arbeit.", options: ["geht", "ging", "gegangen", "gehe"], ans: 1, exp: "종속절이 과거(war)이므로 주절도 시제를 일치시켜 gehen의 단순과거형 ging을 씁니다." },
+                { q: "10. Du ___ mir das nicht zu sagen, ich weiß es schon.", options: ["musst", "brauchst", "sollst", "darfst"], ans: 1, exp: "'brauchen + nicht + zu 부정사' 구문은 'müssen의 부정(~할 필요가 없다)'을 나타냅니다." },
+                { q: "11. Ich warte schon eine halbe Stunde ___ den Bus.", options: ["für", "an", "auf", "über"], ans: 2, exp: "'warten auf (+ 4격)'는 '~를 기다리다'라는 뜻의 필수 숙어입니다." },
+                { q: "12. Er bat mich, ihm bei den Hausaufgaben zu ___.", options: ["helfen", "hilft", "geholfen", "helfe"], ans: 0, exp: "'bitten(부탁하다) + 목적어 + zu 부정사' 구문이므로 동사 원형 helfen이 옵니다." },
+                { q: "13. Hast du Lust, heute Abend mit mir ins Kino zu ___?", options: ["gehen", "gehe", "ging", "gegangen"], ans: 0, exp: "'Lust haben + zu 부정사(~할 의향이 있다)' 구문이므로 원형 gehen이 필요합니다." },
+                { q: "14. Ich habe mich sehr über dein Geschenk ___.", options: ["freuen", "freut", "gefreut", "freute"], ans: 2, exp: "현재완료 시제이므로 sich freuen 동사의 과거분사형인 gefreut가 와야 합니다." },
+                { q: "15. Wenn ich Zeit ___, komme ich auf jeden Fall zu dir.", options: ["habe", "hatte", "hätte", "haben"], ans: 0, exp: "현재나 미래의 실현 가능한 조건을 나타내는 직설법 문장이므로 현재형 habe를 씁니다." },
+                { q: "16. Dieses Auto ___ in Deutschland produziert.", options: ["wird", "ist", "hat", "macht"], ans: 0, exp: "'werden + 과거분사' 형태의 현재 수동태 문장이므로 조동사 wird가 필요합니다." },
+                { q: "17. Er hat ___ gestern leider nicht angerufen.", options: ["mir", "mich", "ich", "mein"], ans: 1, exp: "anrufen(전화하다)은 사람을 4격 목적어로 취하는 동사이므로 mich가 정답입니다." },
+                { q: "18. Wegen ___ schlechten Wetters bleiben wir heute zu Hause.", options: ["dem", "das", "des", "den"], ans: 2, exp: "Wegen(~때문에)은 2격을 지배하는 전치사이므로 중성 명사(Wetter)의 2격 관사 des를 씁니다." },
+                { q: "19. Ich erinnere mich nicht mehr ___ seinen Namen.", options: ["über", "von", "an", "auf"], ans: 2, exp: "'sich erinnern an (+ 4격)'은 '~를 기억하다'라는 고정된 숙어 구문입니다." },
+                { q: "20. ___ ich nach Hause kam, war es schon dunkel.", options: ["Wenn", "Als", "Wann", "Ob"], ans: 1, exp: "과거에 단 한 번 일어난 사건을 나타낼 때는 종속접속사 Als(~했을 때)를 사용합니다." }
             ],
             'B1-B2': [
-                { q: "1. Wenn ich viel Geld ___, würde ich um die Welt reisen.", options: ["habe", "hatte", "hätte", "gehabt"], ans: 2 },
-                { q: "2. Das Fenster ___ gestern von den Jungen kaputt gemacht.", options: ["wird", "wurde", "ist", "war"], ans: 1 },
-                { q: "3. Sie fragte mich, wo ich meine Schlüssel ___.", options: ["lasse", "ließ", "gelassen hätte", "verlassen"], ans: 2 },
-                { q: "4. Bis nächstes Jahr ___ ich mein Studium abgeschlossen haben.", options: ["würde", "bin", "werde", "habe"], ans: 2 },
-                { q: "5. Der Mann, ___ Auto gestohlen wurde, war sehr wütend.", options: ["dem", "den", "dessen", "das"], ans: 2 }
+                { q: "1. Wenn ich viel Geld ___, würde ich um die Welt reisen.", options: ["habe", "hatte", "hätte", "gehabt"], ans: 2, exp: "현재의 비현실적 상황을 가정하는 접속법 2식(가정법)이므로 haben의 접속법 2식인 hätte를 씁니다." },
+                { q: "2. Das Fenster ___ gestern von den Jungen kaputt gemacht.", options: ["wird", "wurde", "ist", "war"], ans: 1, exp: "과거에 발생한 수동태 문장이므로 'wurde + 과거분사' 구문을 사용해야 합니다." },
+                { q: "3. Sie fragte mich, wo ich meine Schlüssel ___.", options: ["lasse", "ließ", "gelassen hatte", "verlassen"], ans: 2, exp: "질문한 시점(과거)보다 열쇠를 두고 온 시점이 더 이전이므로 과거완료(gelassen hatte)를 씁니다." },
+                { q: "4. Bis nächstes Jahr ___ ich mein Studium abgeschlossen haben.", options: ["würde", "bin", "werde", "habe"], ans: 2, exp: "미래의 어느 시점에 완료될 일을 나타내는 미래완료(werden + 과거분사 + haben/sein) 시제이므로 werde가 필요합니다." },
+                { q: "5. Der Mann, ___ Auto gestohlen wurde, war sehr wütend.", options: ["dem", "den", "dessen", "das"], ans: 2, exp: "'그 남자의 차'라는 소유의 관계를 나타내므로 남성 2격 관계대명사 dessen을 사용합니다." },
+                { q: "6. Je mehr ich lerne, ___ besser spreche ich Deutsch.", options: ["als", "desto", "weil", "so"], ans: 1, exp: "'Je + 비교급(부문장), desto + 비교급(주절)'은 '~하면 할수록, 점점 더 ~하다'라는 구문입니다." },
+                { q: "7. Er tut so, ___ er alles wüsste.", options: ["als ob", "obwohl", "als wenn", "weil"], ans: 0, exp: "'so tun, als ob + 접속법 2식'은 '마치 ~인 것처럼 행동하다'라는 관용구입니다." },
+                { q: "8. Ich bin daran gewöhnt, jeden Tag früh ___.", options: ["aufstehen", "aufzustehen", "aufgestanden", "stehe auf"], ans: 1, exp: "분리동사(aufstehen)가 zu 부정사구로 쓰일 때는 분리전철과 동사원형 사이에 zu가 들어간 aufzustehen 형태가 됩니다." },
+                { q: "9. Der Vertrag ___ bis zum Ende des Monats unterschrieben werden.", options: ["hat", "ist", "muss", "wird"], ans: 2, exp: "문미에 '과거분사 + werden' 형태의 수동태 원형이 있으므로, 조동사 muss(의무)가 들어가 '서명되어야만 한다'는 뜻이 됩니다." },
+                { q: "10. Weder er ___ seine Frau waren auf der Party.", options: ["oder", "noch", "als", "und"], ans: 1, exp: "'weder A noch B'는 'A도 B도 아니다'라는 양자 부정 접속사 구문입니다." },
+                { q: "11. Er behauptet, den Mann noch nie ___ zu haben.", options: ["sieht", "sah", "sehen", "gesehen"], ans: 3, exp: "주절의 시제보다 이전의 일을 나타내는 완료형 zu 부정사(과거분사 + zu haben) 구문이므로 gesehen이 옵니다." },
+                { q: "12. Das Problem ist nicht so leicht zu ___.", options: ["lösen", "löst", "löste", "gelöst"], ans: 0, exp: "'sein + zu + 부정사'는 수동적 가능성(~될 수 있다)이나 의무를 나타내며, 동사 원형(lösen)을 씁니다." },
+                { q: "13. Er ist stolz ___, die Prüfung bestanden zu haben.", options: ["damit", "dafür", "darauf", "daran"], ans: 2, exp: "'stolz sein auf' 구문에서 auf가 뒤따르는 zu 부정사구를 받기 위해 대명사부사 darauf로 형태를 바꾼 것입니다." },
+                { q: "14. Sie ließen das Haus von einem bekannten Architekten ___.", options: ["bauen", "gebaut", "baut", "bauten"], ans: 0, exp: "lassen 동사가 사역의 의미(~하게 시키다/두다)로 쓰일 때는 본동사를 항상 원형(bauen)으로 취합니다." },
+                { q: "15. Das ___ ein Irrtum sein, ich habe sicher nichts bestellt.", options: ["kann", "muss", "darf", "soll"], ans: 1, exp: "'틀림없이 ~일 것이다'라는 강한 확신을 나타내는 화법조동사는 müssen(muss)입니다." },
+                { q: "16. Hättest du mir die Wahrheit ___, wäre ich jetzt nicht wütend.", options: ["sagst", "sagen", "gesagt", "sagte"], ans: 2, exp: "과거 사실의 반대를 가정하는 접속법 2식 과거완료(hätte + 과거분사)이므로 gesagt가 씁니다." },
+                { q: "17. Es fällt mir schwer, mich an das neue Klima zu ___.", options: ["gewöhnen", "gewöhnt", "gewöhnte", "gewöhnt haben"], ans: 0, exp: "'sich gewöhnen an(+4격)'이 zu 부정사구로 쓰일 때, 비분리동사이므로 원형 앞에 zu가 붙은 zu gewöhnen 형태가 됩니다." },
+                { q: "18. An deiner Stelle ___ ich das nicht tun.", options: ["werde", "habe", "würde", "bin"], ans: 2, exp: "'An deiner Stelle(내가 너의 입장이라면)'는 접속법 2식(würde)과 호응하여 조언이나 가정을 나타냅니다." },
+                { q: "19. Es wird erwartet, ___ die Immobilienpreise im nächsten Jahr steigen.", options: ["ob", "weil", "damit", "dass"], ans: 3, exp: "가주어 Es를 설명하는 진주어절을 이끄는 접속사는 dass(~라는 것)입니다." },
+                { q: "20. Kaum ___ er angekommen, fing es an zu regnen.", options: ["hatte", "ist", "war", "wurde"], ans: 2, exp: "'Kaum war/hatte + 주어 + 과거분사, (da) 동사'는 '~하자마자 ~했다'라는 구문이며, ankommen은 sein 지배 동사이므로 과거완료 조동사 war를 씁니다." }
             ]
         };
 
         let currentLevel = '';
+        let currentQuestions = [];
 
         function startQuiz(level) {
             currentLevel = level;
+            currentQuestions = quizData[level];
+            
             const title = document.getElementById('quiz-title');
             const content = document.getElementById('quiz-content');
             const quizSection = document.getElementById('quiz-section');
-            const resultDiv = document.getElementById('result');
+            const resultSummary = document.getElementById('result-summary');
+            const reviewSection = document.getElementById('review-section');
+            const submitBtn = document.getElementById('submit-button');
 
-            title.innerText = `${level} 레벨 테스트`;
+            title.innerText = `${level} 레벨 테스트 (20문제)`;
             content.innerHTML = '';
-            resultDiv.style.display = 'none';
-            resultDiv.innerText = '';
-
-            const questions = quizData[level];
             
-            questions.forEach((qObj, index) => {
+            resultSummary.style.display = 'none';
+            reviewSection.style.display = 'none';
+            submitBtn.style.display = 'block';
+
+            currentQuestions.forEach((qObj, index) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question-block';
-                questionDiv.style.marginBottom = '25px';
+                questionDiv.id = `q-block-${index}`;
 
                 const qTitle = document.createElement('div');
                 qTitle.className = 'question';
@@ -191,44 +303,85 @@
             });
 
             quizSection.style.display = 'block';
+            quizSection.scrollIntoView({ behavior: 'smooth' });
         }
 
         function submitQuiz() {
             if (!currentLevel) return;
 
-            const questions = quizData[currentLevel];
             let score = 0;
             let answeredCount = 0;
+            let reviewHTML = '<h3>전체 문제 해설 및 오답 노트</h3>';
 
-            questions.forEach((qObj, index) => {
+            currentQuestions.forEach((qObj, index) => {
                 const selected = document.querySelector(`input[name="question${index}"]:checked`);
+                let userAnswerIndex = -1;
+                
                 if (selected) {
                     answeredCount++;
-                    if (parseInt(selected.value) === qObj.ans) {
-                        score++;
-                    }
+                    userAnswerIndex = parseInt(selected.value);
                 }
+
+                const isCorrect = (userAnswerIndex === qObj.ans);
+                if (isCorrect) score++;
+
+                const userAnswerText = selected ? qObj.options[userAnswerIndex] : '미답변';
+                const correctAnswerText = qObj.options[qObj.ans];
+                const blockClass = isCorrect ? 'correct' : 'incorrect';
+                const statusText = isCorrect ? '<span class="text-correct">정답</span>' : '<span class="text-incorrect">오답</span>';
+
+                reviewHTML += `
+                    <div class="review-block ${blockClass}">
+                        <div class="review-q">${qObj.q}</div>
+                        <div class="review-ans">내 답안: <strong>${userAnswerText}</strong> (${statusText})</div>
+                        ${!isCorrect ? `<div class="review-ans">정답: <strong class="text-correct">${correctAnswerText}</strong></div>` : ''}
+                        <div class="review-exp"><strong>💡 해설:</strong> ${qObj.exp}</div>
+                    </div>
+                `;
             });
 
-            if (answeredCount < questions.length) {
-                alert("모든 문제에 답해주세요!");
-                return;
+            if (answeredCount < currentQuestions.length) {
+                if (!confirm(`모든 문제에 답하지 않았습니다. (현재 ${answeredCount}/${currentQuestions.length} 완료)\n제출하시겠습니까?`)) {
+                    return;
+                }
             }
 
-            const resultDiv = document.getElementById('result');
-            resultDiv.style.display = 'block';
-            resultDiv.innerText = `결과: ${questions.length}문제 중 ${score}문제 정답입니다!`;
+            // 시험 제출 완료 처리 (버튼 및 입력 폼 숨김)
+            document.getElementById('submit-button').style.display = 'none';
+            document.getElementById('quiz-content').style.display = 'none';
+
+            // 결과 요약 표시
+            const resultSummary = document.getElementById('result-summary');
+            let percentage = (score / currentQuestions.length) * 100;
+            let message = `결과: ${currentQuestions.length}문제 중 ${score}문제 정답입니다! (${percentage}%)<br>`;
             
-            if (score === questions.length) {
-                resultDiv.style.color = '#28a745';
-                resultDiv.innerText += " 완벽합니다!";
-            } else if (score >= questions.length / 2) {
-                resultDiv.style.color = '#007bff';
-                resultDiv.innerText += " 잘하셨습니다!";
+            if (percentage >= 90) {
+                resultSummary.style.backgroundColor = '#d4edda';
+                resultSummary.style.color = '#155724';
+                message += "탁월합니다! 다음 레벨로 넘어가셔도 좋습니다.";
+            } else if (percentage >= 70) {
+                resultSummary.style.backgroundColor = '#cce5ff';
+                resultSummary.style.color = '#004085';
+                message += "아주 잘하셨습니다! 기초가 잘 잡혀있습니다.";
+            } else if (percentage >= 50) {
+                resultSummary.style.backgroundColor = '#fff3cd';
+                resultSummary.style.color = '#856404';
+                message += "나쁘지 않은 점수입니다. 아래 해설을 통해 틀린 문법을 복습해보세요.";
             } else {
-                resultDiv.style.color = '#dc3545';
-                resultDiv.innerText += " 복습이 더 필요하겠네요!";
+                resultSummary.style.backgroundColor = '#f8d7da';
+                resultSummary.style.color = '#721c24';
+                message += "이 레벨의 문법 복습이 더 필요합니다. 아래 해설을 꼼꼼히 확인해 보세요.";
             }
+
+            resultSummary.innerHTML = message;
+            resultSummary.style.display = 'block';
+
+            // 리뷰 섹션 표시
+            const reviewSection = document.getElementById('review-section');
+            reviewSection.innerHTML = reviewHTML;
+            reviewSection.style.display = 'block';
+
+            resultSummary.scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
