@@ -410,20 +410,20 @@
 
             resultSummary.scrollIntoView({ behavior: 'smooth' });
 
-           // ==============================================================
-            // 🚨 발급받은 구글 웹 앱 URL을 아래 따옴표 안에 붙여넣으세요! 🚨
+          // ==============================================================
+            // 🚨 새로 발급받은 구글 웹 앱 URL을 아래 따옴표 안에 붙여넣으세요!
             // ==============================================================
-            const scriptURL = '여기에_웹_앱_URL을_붙여넣으세요'; 
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxxOiWX4QvosIGLyhXaTEZIaRFrAzyHOCqXxUShAX9vtinFKcd7QrCLC0g2sFcCCD6YuA/exec'; 
 
-            if(scriptURL !== '여기에_웹_앱_URL을_붙여넣으세요') {
-                // 데이터를 URL 주소 뒤에 꼬리표처럼 붙여서 확실하게 전달하는 방식
+            if(scriptURL !== 'https://script.google.com/macros/s/AKfycbxxOiWX4QvosIGLyhXaTEZIaRFrAzyHOCqXxUShAX9vtinFKcd7QrCLC0g2sFcCCD6YuA/exec') {
+                // 주소(URL) 뒤에 데이터를 직접 붙여서 유실을 원천 차단
                 const finalUrl = scriptURL + "?name=" + encodeURIComponent(userName) + 
                                  "&level=" + encodeURIComponent(currentLevel) + 
                                  "&score=" + encodeURIComponent(finalScoreText);
 
-                // 구글 시트로 전송
+                // method를 'GET'으로 변경
                 fetch(finalUrl, { 
-                    method: 'POST', 
+                    method: 'GET', 
                     mode: 'no-cors' 
                 })
                 .then(() => console.log('구글 시트로 전송 성공!'))
