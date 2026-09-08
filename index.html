@@ -410,22 +410,20 @@
 
             resultSummary.scrollIntoView({ behavior: 'smooth' });
 
+           // ==============================================================
+            // 🚨 발급받은 구글 웹 앱 URL을 아래 따옴표 안에 붙여넣으세요! 🚨
             // ==============================================================
-            // 🚨 아래 따옴표 안에 복사해둔 구글 웹 앱 URL을 붙여넣으세요! 🚨
-            // ==============================================================
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbznNb6BFaFZoSSat0AGRcE95YUL3Klj2w8sZXLq2xznIdrU053--WQaAaLQ2eZqGzYHQg/exec'; 
+            const scriptURL = '여기에_웹_앱_URL을_붙여넣으세요'; 
 
-            if(scriptURL !== 'https://script.google.com/macros/s/AKfycbznNb6BFaFZoSSat0AGRcE95YUL3Klj2w8sZXLq2xznIdrU053--WQaAaLQ2eZqGzYHQg/exec') {
-                // 데이터를 안전하게 전송하기 위한 URLSearchParams 방식
-                const data = new URLSearchParams();
-                data.append('name', userName);
-                data.append('level', currentLevel);
-                data.append('score', finalScoreText);
+            if(scriptURL !== '여기에_웹_앱_URL을_붙여넣으세요') {
+                // 데이터를 URL 주소 뒤에 꼬리표처럼 붙여서 확실하게 전달하는 방식
+                const finalUrl = scriptURL + "?name=" + encodeURIComponent(userName) + 
+                                 "&level=" + encodeURIComponent(currentLevel) + 
+                                 "&score=" + encodeURIComponent(finalScoreText);
 
-                // 구글 스프레드시트로 전송 (CORS 에러 방지 모드 포함)
-                fetch(scriptURL, { 
+                // 구글 시트로 전송
+                fetch(finalUrl, { 
                     method: 'POST', 
-                    body: data,
                     mode: 'no-cors' 
                 })
                 .then(() => console.log('구글 시트로 전송 성공!'))
