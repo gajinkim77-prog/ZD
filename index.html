@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEFR 독일어 레벨 테스트</title>
+    <title>CEFR 독일어 레벨 테스트 및 해설</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -17,27 +17,6 @@
             text-align: center;
             margin-bottom: 30px;
         }
-        .user-info {
-            text-align: center;
-            margin-bottom: 20px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .user-info p {
-            margin-top: 0;
-            font-weight: bold;
-            color: #555;
-        }
-        .user-info input {
-            padding: 12px;
-            font-size: 16px;
-            width: 250px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            text-align: center;
-        }
         .level-selector {
             display: flex;
             justify-content: center;
@@ -46,13 +25,12 @@
             margin-bottom: 30px;
         }
         button {
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             background-color: #e3000f; 
             color: white;
             font-size: 16px;
-            font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s;
         }
@@ -67,7 +45,7 @@
             display: none;
         }
         .question-block {
-            padding-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 1px solid #eee;
             margin-bottom: 25px;
         }
@@ -75,7 +53,6 @@
             font-size: 18px;
             font-weight: bold;
             margin-bottom: 15px;
-            line-height: 1.4;
         }
         .options {
             list-style-type: none;
@@ -86,7 +63,7 @@
         }
         .options label {
             display: block;
-            padding: 12px;
+            padding: 10px;
             background: #e9ecef;
             border-radius: 5px;
             cursor: pointer;
@@ -97,7 +74,6 @@
         }
         .options input[type="radio"] {
             margin-right: 10px;
-            transform: scale(1.2);
         }
         .submit-btn {
             margin-top: 20px;
@@ -119,7 +95,6 @@
             display: none;
             padding: 20px;
             border-radius: 5px;
-            line-height: 1.5;
         }
         #review-section {
             margin-top: 30px;
@@ -132,18 +107,28 @@
             margin-bottom: 20px;
             border-left: 5px solid #ccc;
         }
-        .review-block.correct { border-left-color: #28a745; }
-        .review-block.incorrect { border-left-color: #dc3545; }
-        .review-q { font-weight: bold; font-size: 16px; margin-bottom: 10px; }
-        .review-ans { margin-bottom: 5px; font-size: 15px; }
+        .review-block.correct {
+            border-left-color: #28a745;
+        }
+        .review-block.incorrect {
+            border-left-color: #dc3545;
+        }
+        .review-q {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .review-ans {
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
         .review-exp {
             background: #e9ecef;
-            padding: 12px;
+            padding: 10px;
             border-radius: 5px;
             font-size: 14px;
-            color: #444;
+            color: #555;
             margin-top: 10px;
-            line-height: 1.5;
         }
         .text-correct { color: #28a745; font-weight: bold; }
         .text-incorrect { color: #dc3545; font-weight: bold; }
@@ -152,16 +137,10 @@
 <body>
 
     <div class="header">
-        <h1>독일어 CEFR 레벨 테스트</h1>
+        <h1>독일어 CEFR 레벨 테스트 (해설 포함)</h1>
+        <p>응시할 레벨을 선택해 주세요.</p>
     </div>
 
-    <!-- 이름 입력 칸 -->
-    <div class="user-info">
-        <p>시험을 시작하기 전에 이름을 입력해 주세요.</p>
-        <input type="text" id="user-name" placeholder="이름을 입력하세요">
-    </div>
-
-    <!-- 레벨 선택 버튼 -->
     <div class="level-selector">
         <button onclick="startQuiz('0-A1')">0-A1 (기초)</button>
         <button onclick="startQuiz('A1-A2')">A1-A2 (초급)</button>
@@ -169,7 +148,6 @@
         <button onclick="startQuiz('B1-B2')">B1-B2 (중고급)</button>
     </div>
 
-    <!-- 문제 영역 -->
     <div id="quiz-section" class="quiz-container">
         <h2 id="quiz-title"></h2>
         <div id="quiz-content"></div>
@@ -180,7 +158,6 @@
     </div>
 
     <script>
-        // 80문제 전체 데이터
         const quizData = {
             '0-A1': [
                 { q: "1. Hallo! Wie ___ es dir?", options: ["gehst", "geht", "gehen", "gehe"], ans: 1, exp: "'Wie geht es dir?'는 '어떻게 지내?'라는 안부를 묻는 고정 관용 표현입니다." },
@@ -199,7 +176,7 @@
                 { q: "14. Was ___ das?", options: ["sind", "bin", "ist", "seid"], ans: 2, exp: "das(이것)가 단수 주어로 쓰였으므로 3인칭 단수형 동사 ist를 씁니다." },
                 { q: "15. Wir gehen ___ Kino.", options: ["im", "in", "ins", "zu"], ans: 2, exp: "Kino(영화관)는 중성 명사이며, '~로 간다'는 방향성(4격)을 나타내므로 'in das'의 축약형인 ins를 씁니다." },
                 { q: "16. Ich spreche Englisch und ein ___ Deutsch.", options: ["bisschen", "wenig", "klein", "kurz"], ans: 0, exp: "'ein bisschen'은 '조금, 약간'을 뜻하는 하나의 굳어진 표현입니다." },
-                { q: "17. Guten ___, wie kann ich Ihnen helfen?", options: ["Morgen", "Tag", "Abend", "Nacht"], ans: 1, exp: "Tag은 남성 명사이므로 목적격 어미가 붙어 'Guten Tag'이 됩니다." },
+                { q: "17. Guten ___, wie kann ich Ihnen helfen?", options: ["Morgen", "Tag", "Abend", "Nacht"], ans: 1, exp: "Tag은 남성 명사이므로 목적격 어미가 붙어 'Guten Tag'이 됩니다. (참고: Nacht는 여성명사라서 Gute Nacht)" },
                 { q: "18. ___ ist die Toilette?", options: ["Wer", "Wie", "Wo", "Was"], ans: 2, exp: "장소를 물을 때는 '어디에'라는 뜻의 의문사 Wo를 사용합니다." },
                 { q: "19. Ich ___ einen Bruder.", options: ["bin", "hast", "habe", "hat"], ans: 2, exp: "주어 'Ich'에 맞는 haben(가지다) 동사의 인칭변화는 habe입니다." },
                 { q: "20. ___ du ein Auto?", options: ["Habe", "Hast", "Hat", "Haben"], ans: 1, exp: "주어 'du'에 맞는 haben 동사의 인칭변화는 hast입니다." }
@@ -224,7 +201,7 @@
                 { q: "17. Wir müssen jetzt nach Hause ___.", options: ["gegangen", "gehen", "geht", "gehe"], ans: 1, exp: "화법조동사 müssen이 쓰였으므로 본동사는 원형(gehen) 형태로 문장 맨 끝에 위치합니다." },
                 { q: "18. ___ Wetter ist heute sehr schön.", options: ["Der", "Die", "Das", "Den"], ans: 2, exp: "Wetter(날씨)는 중성 명사이므로 정관사 주격 Das를 사용합니다." },
                 { q: "19. Möchtest du noch ___ Stück Kuchen?", options: ["ein", "einen", "eine", "einem"], ans: 0, exp: "Stück(조각)은 중성 명사이고 목적어 자리(4격)이므로 부정관사 ein을 씁니다." },
-                { q: "20. Er trinkt Tee, ___ er mag keinen Kaffee.", options: ["denn", "weil", "dass", "wenn"], ans: 0, exp: "뒤따르는 문장이 정상 어순이므로, 0자리 접속사인 denn(왜냐하면)이 와야 합니다." }
+                { q: "20. Er trinkt Tee, ___ er mag keinen Kaffee.", options: ["denn", "weil", "dass", "wenn"], ans: 0, exp: "뒤따르는 문장이 정상 어순(주어+동사)이므로, 0자리 접속사인 denn(왜냐하면)이 와야 합니다." }
             ],
             'A2-B1': [
                 { q: "1. Ich habe diese Stadt noch nie ___.", options: ["besuchen", "besuchtet", "besuche", "besucht"], ans: 3, exp: "현재완료(haben + 과거분사) 시제이므로 besuchen의 비분리 과거분사인 besucht를 씁니다." },
@@ -274,18 +251,8 @@
 
         let currentLevel = '';
         let currentQuestions = [];
-        let userName = '';
 
         function startQuiz(level) {
-            // 이름 입력 확인
-            const nameInput = document.getElementById('user-name').value.trim();
-            if (!nameInput) {
-                alert("테스트를 시작하기 전에 이름을 먼저 입력해 주세요!");
-                document.getElementById('user-name').focus();
-                return;
-            }
-            userName = nameInput;
-
             currentLevel = level;
             currentQuestions = quizData[level];
             
@@ -306,6 +273,7 @@
             currentQuestions.forEach((qObj, index) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question-block';
+                questionDiv.id = `q-block-${index}`;
 
                 const qTitle = document.createElement('div');
                 qTitle.className = 'question';
@@ -378,54 +346,42 @@
                 }
             }
 
+            // 시험 제출 완료 처리 (버튼 및 입력 폼 숨김)
             document.getElementById('submit-button').style.display = 'none';
             document.getElementById('quiz-content').style.display = 'none';
 
+            // 결과 요약 표시
             const resultSummary = document.getElementById('result-summary');
             let percentage = (score / currentQuestions.length) * 100;
-            let finalScoreText = `${score}점 (${percentage}%)`;
-            
-            let message = `수고하셨습니다, ${userName}님!<br>결과: ${currentQuestions.length}문제 중 ${score}문제 정답입니다! (${percentage}%)<br>`;
+            let message = `결과: ${currentQuestions.length}문제 중 ${score}문제 정답입니다! (${percentage}%)<br>`;
             
             if (percentage >= 90) {
                 resultSummary.style.backgroundColor = '#d4edda';
                 resultSummary.style.color = '#155724';
+                message += "탁월합니다! 다음 레벨로 넘어가셔도 좋습니다.";
             } else if (percentage >= 70) {
                 resultSummary.style.backgroundColor = '#cce5ff';
                 resultSummary.style.color = '#004085';
+                message += "아주 잘하셨습니다! 기초가 잘 잡혀있습니다.";
             } else if (percentage >= 50) {
                 resultSummary.style.backgroundColor = '#fff3cd';
                 resultSummary.style.color = '#856404';
+                message += "나쁘지 않은 점수입니다. 아래 해설을 통해 틀린 문법을 복습해보세요.";
             } else {
                 resultSummary.style.backgroundColor = '#f8d7da';
                 resultSummary.style.color = '#721c24';
+                message += "이 레벨의 문법 복습이 더 필요합니다. 아래 해설을 꼼꼼히 확인해 보세요.";
             }
 
             resultSummary.innerHTML = message;
             resultSummary.style.display = 'block';
 
+            // 리뷰 섹션 표시
             const reviewSection = document.getElementById('review-section');
             reviewSection.innerHTML = reviewHTML;
             reviewSection.style.display = 'block';
 
             resultSummary.scrollIntoView({ behavior: 'smooth' });
-
-          // ==============================================================
-            // 🚨 발급받은 구글 웹 앱 URL을 아래 따옴표 안에 붙여넣으세요!
-            // ==============================================================
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxxOiWX4QvosIGLyhXaTEZIaRFrAzyHOCqXxUShAX9vtinFKcd7QrCLC0g2sFcCCD6YuA/exec'; 
-
-            if(scriptURL !== 'https://script.google.com/macros/s/AKfycbxxOiWX4QvosIGLyhXaTEZIaRFrAzyHOCqXxUShAX9vtinFKcd7QrCLC0g2sFcCCD6YuA/exec') {
-                const finalUrl = scriptURL + "?name=" + encodeURIComponent(userName) + 
-                                 "&level=" + encodeURIComponent(currentLevel) + 
-                                 "&score=" + encodeURIComponent(finalScoreText);
-
-                // 보안(CORS) 에러를 원천 차단하는 가장 확실한 꼼수 전송법
-                let img = new Image();
-                img.src = finalUrl;
-                
-                console.log('구글 시트로 데이터 전송 완료!');
-            }
         }
     </script>
 </body>
