@@ -411,23 +411,20 @@
             resultSummary.scrollIntoView({ behavior: 'smooth' });
 
           // ==============================================================
-            // 🚨 새로 발급받은 구글 웹 앱 URL을 아래 따옴표 안에 붙여넣으세요!
+            // 🚨 발급받은 구글 웹 앱 URL을 아래 따옴표 안에 붙여넣으세요!
             // ==============================================================
             const scriptURL = 'https://script.google.com/macros/s/AKfycbxxOiWX4QvosIGLyhXaTEZIaRFrAzyHOCqXxUShAX9vtinFKcd7QrCLC0g2sFcCCD6YuA/exec'; 
 
             if(scriptURL !== 'https://script.google.com/macros/s/AKfycbxxOiWX4QvosIGLyhXaTEZIaRFrAzyHOCqXxUShAX9vtinFKcd7QrCLC0g2sFcCCD6YuA/exec') {
-                // 주소(URL) 뒤에 데이터를 직접 붙여서 유실을 원천 차단
                 const finalUrl = scriptURL + "?name=" + encodeURIComponent(userName) + 
                                  "&level=" + encodeURIComponent(currentLevel) + 
                                  "&score=" + encodeURIComponent(finalScoreText);
 
-                // method를 'GET'으로 변경
-                fetch(finalUrl, { 
-                    method: 'GET', 
-                    mode: 'no-cors' 
-                })
-                .then(() => console.log('구글 시트로 전송 성공!'))
-                .catch(error => console.error('전송 실패:', error));
+                // 보안(CORS) 에러를 원천 차단하는 가장 확실한 꼼수 전송법
+                let img = new Image();
+                img.src = finalUrl;
+                
+                console.log('구글 시트로 데이터 전송 완료!');
             }
         }
     </script>
